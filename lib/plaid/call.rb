@@ -11,7 +11,7 @@ module Plaid
     end
 
     def add_account(type,username,password,email)
-      post('/connect',type,username,password,email)
+      @response = post('/connect',type,username,password,email)
       return parse_response(@response)
     end
 
@@ -64,8 +64,17 @@ module Plaid
 
     def post(path,type,username,password,email)
       url = BASE_URL + path
-      @response = RestClient.post url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :type => type ,:credentials => {:username => username, :password => password} ,:email => email
-      return @response
+      RestClient.post(url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :type => type ,:credentials => {:username => username, :password => password} ,:email => email){ |response, request, result, &block|
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+      }
+
     end
 
     def get(path,id)
