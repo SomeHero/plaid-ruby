@@ -13,7 +13,6 @@ module Plaid
     end
 
     def mfa_step(access_token,code, type)
-      binding.pry
       @mfa = code
 
       @response = post("/connect/step", access_token, { mfa: @mfa, type: type })
