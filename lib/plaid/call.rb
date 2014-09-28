@@ -16,7 +16,7 @@ module Plaid
     end
 
     def get_place(id)
-      get('/entity',id)
+      @response = get('/entity',id)
       return parse_place(@response)
     end
     protected

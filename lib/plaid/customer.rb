@@ -13,19 +13,20 @@ module Plaid
     end
 
     def mfa_step(access_token,code, type)
+      binding.pry
       @mfa = code
 
-      post("/connect/step", access_token, { mfa: @mfa, type: type })
+      @response = post("/connect/step", access_token, { mfa: @mfa, type: type })
       return parse_response(@response,1)
     end
 
     def get_transactions(access_token)
-      get('/connect', access_token)
+      @response = get('/connect', access_token)
       return parse_response(@response,2)
     end
 
     def delete_account(access_token)
-      delete('/connect', access_token)
+      @response = delete('/connect', access_token)
       return parse_response(@response,3)
     end
 
