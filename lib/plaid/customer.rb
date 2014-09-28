@@ -94,20 +94,44 @@ module Plaid
 
     def get(path,access_token,options={})
       url = BASE_URL + path
-      @response = RestClient.get(url,:params => {:client_id => self.instance_variable_get(:'@customer_id'), :secret => self.instance_variable_get(:'@secret'), :access_token => access_token})
-      return @response
+      RestClient.get(url,:params => {:client_id => self.instance_variable_get(:'@customer_id'), :secret => self.instance_variable_get(:'@secret'), :access_token => access_token}){ |response, request, result, &block|
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+      }
     end
 
     def post(path,access_token,options={})
       url = BASE_URL + path
-      @response = RestClient.post url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :access_token => access_token, :mfa => @mfa, :type => options[:type]
-      return @response
+      RestClient.post url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :access_token => access_token, :mfa => @mfa, :type => options[:type]{ |response, request, result, &block|
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+      }
     end
 
     def delete(path,access_token,options={})
       url = BASE_URL + path
-      @response = RestClient.delete(url,:params => {:client_id => self.instance_variable_get(:'@customer_id'), :secret => self.instance_variable_get(:'@secret'), :access_token => access_token})
-      return @response
+      RestClient.delete(url,:params => {:client_id => self.instance_variable_get(:'@customer_id'), :secret => self.instance_variable_get(:'@secret'), :access_token => access_token}){ |response, request, result, &block|
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+      }
     end
   end
 end

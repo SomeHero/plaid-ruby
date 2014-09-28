@@ -79,8 +79,16 @@ module Plaid
 
     def get(path,id)
       url = BASE_URL + path
-      @response = RestClient.get(url,:params => {:entity_id => id})
-      return @response
+      RestClient.get(url,:params => {:entity_id => id}){ |response, request, result, &block|
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+      }
     end
 
   end
