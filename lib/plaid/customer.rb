@@ -19,6 +19,12 @@ module Plaid
       return parse_response(@response,1)
     end
 
+    def reauthenticate(access_token,type,username,password)
+
+      @response = patch("/connect", access_token, type, username, password)
+      return parse_response(@response, 1)
+    end
+
     def get_transactions(access_token)
       @response = get('/connect', access_token)
       return parse_response(@response,2)
@@ -109,6 +115,20 @@ module Plaid
     def post(path,access_token,options={})
       url = BASE_URL + path
       RestClient.post url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :access_token => access_token, :mfa => @mfa, :type => options[:type]{ |response, request, result, &block|
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+      }
+    end
+
+    def patch(path,access_token,type,username,password,options={})
+      url = BASE_URL + path
+      RestClient.patch(url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :access_token => access_token, :type => type, :credentials => {:username => username, :password => password} ){ |response, request, result, &block|
           case response.code
           when 200
             response
