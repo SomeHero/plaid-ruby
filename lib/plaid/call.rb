@@ -15,6 +15,11 @@ module Plaid
       return parse_response(@response)
     end
 
+    def auth_account(type,options,email)
+      @response = post('/auth',type,options,email)
+      return parse_response(@response)
+    end
+
     def get_place(id)
       @response = get('/entity',id)
       return parse_place(@response)
