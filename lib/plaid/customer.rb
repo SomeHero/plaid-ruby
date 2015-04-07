@@ -3,8 +3,6 @@ module Plaid
   # Abstracting as a class makes it easier since we wont have to redefine the access_token over and over.
   class Customer
 
-    BASE_URL = 'https://tartan.plaid.com'
-
     # This initializes our instance variables, and sets up a new Customer class.
     def initialize
       Plaid::Configure::KEYS.each do |key|
@@ -99,7 +97,9 @@ module Plaid
     private
 
     def get(path,access_token,options={})
-      url = BASE_URL + path
+      base_url = self.instance_variable_get(:'@base_url')
+      
+      url = base_url + path
       RestClient.get(url,:params => {:client_id => self.instance_variable_get(:'@customer_id'), :secret => self.instance_variable_get(:'@secret'), :access_token => access_token}){ |response, request, result, &block|
           case response.code
           when 200
@@ -113,7 +113,9 @@ module Plaid
     end
 
     def post(path,access_token,options={})
-      url = BASE_URL + path
+      base_url = self.instance_variable_get(:'@base_url')
+      
+      url = base_url + path
       RestClient.post url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :access_token => access_token, :mfa => @mfa, :type => options[:type]{ |response, request, result, &block|
           case response.code
           when 200
@@ -127,7 +129,9 @@ module Plaid
     end
 
     def patch(path,access_token,type,username,password,options={})
-      url = BASE_URL + path
+      base_url = self.instance_variable_get(:'@base_url')
+      
+      url = base_url + path
       RestClient.patch(url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :access_token => access_token, :type => type, :credentials => {:username => username, :password => password} ){ |response, request, result, &block|
           case response.code
           when 200
@@ -141,7 +145,9 @@ module Plaid
     end
 
     def delete(path,access_token,options={})
-      url = BASE_URL + path
+      base_url = self.instance_variable_get(:'@base_url')
+      
+      url = base_url + path
       RestClient.delete(url,:params => {:client_id => self.instance_variable_get(:'@customer_id'), :secret => self.instance_variable_get(:'@secret'), :access_token => access_token}){ |response, request, result, &block|
           case response.code
           when 200

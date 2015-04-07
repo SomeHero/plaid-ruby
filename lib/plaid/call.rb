@@ -1,8 +1,6 @@
 module Plaid
   class Call
 
-    BASE_URL = 'https://tartan.plaid.com/'
-
     # This initializes our instance variables, and sets up a new Customer class.
     def initialize
       Plaid::Configure::KEYS.each do |key|
@@ -10,8 +8,13 @@ module Plaid
       end
     end
 
-    def add_account(type,username,password,email)
-      @response = post('/connect',type,username,password,email)
+    def add_account(type,options,email)
+      @response = post('/connect',type,options,email)
+      return parse_response(@response)
+    end
+
+    def auth_account(type,options,email)
+      @response = post('/auth',type,options,email)
       return parse_response(@response)
     end
 
@@ -67,9 +70,11 @@ module Plaid
 
     private
 
-    def post(path,type,username,password,email)
-      url = BASE_URL + path
-      RestClient.post(url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :type => type ,:credentials => {:username => username, :password => password} ,:email => email){ |response, request, result, &block|
+    def post(path,type,options,email)
+      base_url = self.instance_variable_get(:'@base_url')
+      
+      url = base_url + path
+      RestClient.post(url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :type => type ,:credentials => {:username => options[:username], :password => options[:password], :pin => options[:pin]} ,:email => email){ |response, request, result, &block|
           case response.code
           when 200
             response
@@ -83,7 +88,9 @@ module Plaid
     end
 
     def get(path,id)
-      url = BASE_URL + path
+      base_url = self.instance_variable_get(:'@base_url')
+      
+      url = base_url + path
       RestClient.get(url,:params => {:entity_id => id}){ |response, request, result, &block|
           case response.code
           when 200
