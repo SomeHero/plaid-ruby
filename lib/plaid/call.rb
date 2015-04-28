@@ -9,12 +9,35 @@ module Plaid
     end
 
     def add_account(type,options,email)
-      @response = post('/connect',type,options,email)
-      return parse_response(@response)
-    end
+      base_url = self.instance_variable_get(:'@base_url')
+      path = "/connect"
 
-    def auth_account(type,options,email)
-      @response = post('/auth',type,options,email)
+      url = base_url + path
+
+      binding.pry
+      @response = RestClient.post(url,
+            :client_id => self.instance_variable_get(:'@customer_id'),
+            :secret => self.instance_variable_get(:'@secret'),
+            :type => type,
+            :username => options[:username],
+            :password => options[:password],
+            :pin => options[:pin],
+            :option => {
+              :webhook => options[:webhook]
+            },
+            :email => email
+        ){ |response, request, result, &block|
+          binding.pry
+          case response.code
+          when 200
+            response
+          when 201
+            response
+          else
+            response.return!(request, result, &block)
+          end
+        }
+
       return parse_response(@response)
     end
 
@@ -39,7 +62,7 @@ module Plaid
         @parsed_response[:accounts] = response["accounts"]
         @parsed_response[:transactions] = response["transactions"]
         return @parsed_response
-      when 201  
+      when 201
         @parsed_response = Hash.new
         @parsed_response[:code] = response.code
         response = JSON.parse(response)
@@ -72,9 +95,10 @@ module Plaid
 
     def post(path,type,options,email)
       base_url = self.instance_variable_get(:'@base_url')
-      
+
       url = base_url + path
-      RestClient.post(url, :client_id => self.instance_variable_get(:'@customer_id') ,:secret => self.instance_variable_get(:'@secret'), :type => type ,:credentials => {:username => options[:username], :password => options[:password], :pin => options[:pin]} ,:email => email){ |response, request, result, &block|
+      RestClient.post(url,
+            :client_id => self.instance_variable_get(:'@customer_id'),:secret => self.instance_variable_get(:'@secret'), :type => type ,:credentials => {:username => options[:username], :password => options[:password], :pin => options[:pin]} ,:email => email){ |response, request, result, &block|
           case response.code
           when 200
             response
@@ -89,7 +113,7 @@ module Plaid
 
     def get(path,id)
       base_url = self.instance_variable_get(:'@base_url')
-      
+
       url = base_url + path
       RestClient.get(url,:params => {:entity_id => id}){ |response, request, result, &block|
           case response.code
