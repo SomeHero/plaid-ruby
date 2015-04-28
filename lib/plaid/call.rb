@@ -14,7 +14,6 @@ module Plaid
 
       url = base_url + path
 
-      binding.pry
       @response = RestClient.post(url,
             :client_id => self.instance_variable_get(:'@customer_id'),
             :secret => self.instance_variable_get(:'@secret'),
@@ -27,7 +26,6 @@ module Plaid
             },
             :email => email
         ){ |response, request, result, &block|
-          binding.pry
           case response.code
           when 200
             response
