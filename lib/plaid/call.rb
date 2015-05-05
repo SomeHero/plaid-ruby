@@ -22,6 +22,7 @@ module Plaid
             :password => options[:password],
             :pin => options[:pin],
             :options => {
+              :login_only => true,
               :webhook => options[:webhook]
             },
             :email => email
